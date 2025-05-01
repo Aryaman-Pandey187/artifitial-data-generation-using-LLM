@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Artificial Data Generator</title>
+    <link href="{% static 'source_info/index.css' %}" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <!-- LOGIN FORM CREATION -->
+    <div class="background"></div>
+    <div class="container">
+        <div class="item">
+            <div class="text-item">
+                <h1 id="artificial">ARTIFICIAL DATA GENERATOR</h1>
+                <div id="time" style="position: absolute; left: 10px; bottom: 10px;"></div>
+            </div>
+        </div>
+        <!-- <h1>{{ message }}</h1> -->
+        <p style="position: absolute; left: 200px; bottom: 400px;">
+            PROD User: &emsp; &emsp;&emsp;&emsp;&nbsp; HEHEHE <br>
+            Source Database: &emsp; HEHEHE <br>
+            Source Table: &emsp; <br>
+            Target ENV: &emsp;   <br>
+            Target Database: &emsp;<br>
+            Target Table: &emsp; <br>
+        </p>
+        <!-- Terminal Box -->
+        <!-- Terminal Box -->
+        <div class="terminal-box">
+            <pre id="terminal-output" style="overflow:auto">
+    > Initializing...
+            </pre>
+        </div>
+        <img src="{% static 'hourglass (2).gif' %}" alt="lele" style="height: 25%; width: auto; border-radius: 7px; position: absolute; right: 70px; bottom: 130px;">        
+
+    <div id="username">Developed by: Aryaman Pandey</div>
+    <script src="{% static 'source_info/index.js' %}"></script>
+    <!-- JavaScript for Terminal Updates -->
+    <script>
+        let lastLogTimestamp = null; // Keep track of the last log's timestamp
+
+        function fetchLogs() {
+            const params = lastLogTimestamp ? `?last_log_timestamp=${encodeURIComponent(lastLogTimestamp)}` : '';
+            fetch(`/fetch-logs/${params}`) // Send the timestamp as a query parameter
+                .then(response => response.json())
+                .then(data => {
+                    const terminalBox = document.getElementById('terminal-output');
+
+                    // Append new logs to the terminal box
+                    data.logs.forEach(log => {
+                        const logElement = document.createElement('div');
+                        logElement.style.fontFamily = "'Courier New', Courier, monospace";
+                        // logElement.textContent = `    >${log.timestamp} : ${log.message}`;
+                        logElement.textContent = `    >${log.message}`;
+                        terminalBox.appendChild(logElement);
+                    });
+
+                    // Update the last log timestamp
+                    if (data.logs.length > 0) {
+                        lastLogTimestamp = data.logs[data.logs.length - 1].timestamp; // Save the timestamp of the latest log
+                    }
+                })
+                .catch(error => console.error('Error fetching logs:', error));
+        }
+
+        // Fetch logs every 20 seconds
+        setInterval(fetchLogs, 20000);
+        fetchLogs(); // Initial fetch
+
+        function checkTaskCompletion() {
+            fetch('/check-tasks-complete/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.tasks_complete)
+                    if (data.tasks_complete) {
+                        window.location.href = '/last_page/';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Poll the server every 30 second
+        setInterval(checkTaskCompletion, 30000);
+
+    </script>
+</body>
+</html>
+
